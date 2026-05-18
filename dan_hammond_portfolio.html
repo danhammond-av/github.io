@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dan Hammond — Audio Engineer & Video Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --text: #e8e2d9;
+    --text-muted: #7a7368;
+    --accent: #c8a96e;
+    --accent2: #8fb4a8;
+    --border: #2a2a2a;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── WAVEFORM HEADER ── */
+  header {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 8vw;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .waveform-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 0 8vw;
+    opacity: 0.12;
+  }
+
+  .waveform-bg span {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+    animation: wave 3s ease-in-out infinite;
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.4); }
+  }
+
+  .header-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header-desc {
+    max-width: 540px;
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+    margin-bottom: 48px;
+  }
+
+  .header-cta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 32px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .btn-ghost {
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+    background: transparent;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION LAYOUT ── */
+  section {
+    padding: 100px 8vw;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 64px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    max-width: 120px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.4;
+  }
+
+  /* ── ABOUT ── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .about-text h2 {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 32px;
+  }
+
+  .about-text h2 em { font-style: italic; color: var(--accent); }
+
+  .about-text p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.9;
+  }
+
+  .credentials {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .credential-item {
+    padding: 20px 24px;
+    background: var(--bg2);
+    border-left: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .credential-item:hover { border-left-color: var(--accent); }
+
+  .credential-item .cred-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 6px;
+  }
+
+  .credential-item .cred-name {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  /* ── WORK ── */
+  .work-intro {
+    max-width: 600px;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-bottom: 64px;
+    line-height: 1.9;
+  }
+
+  /* ── VIDEO PROJECTS ── */
+  .projects-group {
+    margin-bottom: 80px;
+  }
+
+  .projects-group-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .role-badge {
+    background: var(--accent);
+    color: var(--bg);
+    padding: 3px 10px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .role-badge.audio { background: var(--accent2); }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2px;
+  }
+
+  .project-card {
+    background: var(--bg2);
+    padding: 32px;
+    transition: background 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .project-card:hover { background: var(--bg3); }
+  .project-card:hover::before { transform: scaleX(1); }
+
+  .project-show {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .project-show.audio-show { color: var(--accent2); }
+
+  .project-title {
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .project-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+  }
+
+  .project-link {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: gap 0.3s ease;
+  }
+
+  .project-link.audio-link { color: var(--accent2); }
+  .project-link:hover { gap: 14px; }
+
+  .project-link::after { content: '→'; }
+
+  /* ── SKILLS ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+
+  .skill-block {
+    background: var(--bg2);
+    padding: 40px 32px;
+  }
+
+  .skill-block h3 {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+
+  .skill-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .skill-list li {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .skill-list li::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── CONTACT ── */
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .contact-text h2 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 24px;
+  }
+
+  .contact-text h2 em { font-style: italic; color: var(--accent); }
+
+  .contact-text p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.9;
+  }
+
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg2);
+    overflow: hidden;
+  }
+
+  .contact-row-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 16px 20px;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .contact-row-value {
+    padding: 16px 24px;
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  .contact-row-value a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .contact-row-value a:hover { color: var(--accent); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px 8vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer p {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .about-grid, .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── NOTE BANNER ── */
+  .note-banner {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px 24px;
+    margin-bottom: 48px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .note-banner strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="waveform-bg" id="waveform"></div>
+  <p class="header-eyebrow">Audio Engineer &amp; Video Editor — Boulder, CO</p>
+  <h1>Dan<br><em>Hammond</em></h1>
+  <p class="header-desc">Over two decades of experience in professional audio engineering, live sound, post-production mixing, and video editing. Trained at the Institute of Audio Research, New York City.</p>
+  <div class="header-cta">
+    <a href="#work" class="btn">View Work</a>
+    <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+  </div>
+</header>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">About</p>
+  <div class="about-grid">
+    <div class="about-text">
+      <h2>Sound &amp; image,<br><em>crafted with care.</em></h2>
+      <p>I'm an audio engineer and video editor with deep roots in live production and a growing body of work in podcast post-production and long-form video editing. My training at the Institute of Audio Research gave me a rigorous foundation in signal flow, mixing, and music production — skills I've applied across two decades of live events, studio sessions, and digital content.</p>
+      <p>I bring the same precision and attention to detail to every project, whether that's a live corporate event for 2,000 people, a long-form interview podcast, or a carefully mixed audio documentary.</p>
+    </div>
+    <div class="credentials">
+      <div class="credential-item">
+        <div class="cred-label">Training</div>
+        <div class="cred-name">Certificate in Audio Engineering — Institute of Audio Research, NYC</div>
+      </div>
+      <div class="credential-item">
+        <div class="cred-label">Certification</div>
+        <div class="cred-name">InfoCOMM CTS — Certified Technology Specialist (A/V Systems)</div>
+      </div>
+      <div class="credential-item">
+        <div class="cred-label">Tools</div>
+        <div class="cred-name">Pro Tools · Studio One · Adobe Premiere Pro · Adobe Suite</div>
+      </div>
+      <div class="credential-item">
+        <div class="cred-label">Experience</div>
+        <div class="cred-name">20+ years in live A/V, studio recording, and post-production</div>
+      </div>
+      <div class="credential-item">
+        <div class="cred-label">Location</div>
+        <div class="cred-name">Boulder, CO — available for remote projects worldwide</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <p class="section-label">Selected Work</p>
+  <p class="work-intro">The following projects represent recent audio and video work for published podcast and media productions. Credits include video editing with audio mixing, and standalone audio mixing and post-production.</p>
+
+
+  <!-- VIDEO + AUDIO EDITING — Rebel Wisdom (2 episodes) -->
+  <div class="projects-group">
+    <div class="projects-group-label">
+      Rebel Wisdom
+      <span class="role-badge audio">Audio Mixing &amp; Post-Production</span>
+    </div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-show audio-show">Rebel Wisdom</div>
+        <div class="project-title">What Happened to Jordan Peterson? Ken Wilber</div>
+        <div class="project-meta">
+          <span>Audio Mix</span>
+          <span>Post-Production</span>
+        </div>
+        <a href="https://www.youtube.com/watch?v=-asnBMz4VvU" target="_blank" class="project-link audio-link">Watch on YouTube</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-show audio-show">Rebel Wisdom</div>
+        <div class="project-title">Curiosity & Wonder, John Vervaeke & Jonathan Pageau</div>
+        <div class="project-meta">
+          <span>Audio Mix</span>
+          <span>Post-Production</span>
+        </div>
+        <a href="https://www.youtube.com/watch?v=mrdJJCKkwdI" target="_blank" class="project-link audio-link">Watch on YouTube</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AUDIO MIXING ONLY — This Thing Called Life (3 episodes) -->
+  <div class="projects-group">
+    <div class="projects-group-label">
+      This Thing Called Life
+      <span class="role-badge">Video &amp; Audio Editing</span>
+    </div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-show">This Thing Called Life</div>
+        <div class="project-title">Episode 10 Feat. Soncerea Hawkins</div>
+        <div class="project-meta">
+          <span>Video Edit</span>
+          <span>Audio Mix</span>
+        </div>
+        <a href="https://www.youtube.com/watch?v=mxciSCmuuZ4" target="_blank" class="project-link">Watch on YouTube</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-show">This Thing Called Life</div>
+        <div class="project-title">Episode 12 Feat. Laura Butler</div>
+        <div class="project-meta">
+          <span>Video Edit</span>
+          <span>Audio Mix</span>
+        </div>
+        <a href="https://www.youtube.com/watch?v=kIdl2WY1k10" target="_blank" class="project-link">Watch on YouTube</a>
+      </div>
+
+      <div class="project-card">
+        <div class="project-show">This Thing Called Life</div>
+        <div class="project-title">Episode 13 Feat. Shawn Jackson</div>
+        <div class="project-meta">
+          <span>Video Edit</span>
+          <span>Audio Mix</span>
+        </div>
+        <a href="https://www.youtube.com/watch?v=ot2WTh9v0dI" target="_blank" class="project-link">Watch on YouTube</a>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <p class="section-label">Capabilities</p>
+  <div class="skills-grid">
+    <div class="skill-block">
+      <h3>Audio Engineering</h3>
+      <ul class="skill-list">
+        <li>Live sound mixing &amp; reinforcement</li>
+        <li>Studio recording &amp; tracking</li>
+        <li>Podcast post-production</li>
+        <li>Dialogue editing &amp; cleanup</li>
+        <li>Noise reduction &amp; restoration</li>
+        <li>Mastering for broadcast &amp; streaming</li>
+        <li>Pro Tools · Studio One · DAW-agnostic</li>
+      </ul>
+    </div>
+    <div class="skill-block">
+      <h3>Video Production</h3>
+      <ul class="skill-list">
+        <li>Long-form video editing</li>
+        <li>Live camera operation &amp; I-MAG</li>
+        <li>Interview &amp; documentary editing</li>
+        <li>Adobe Premiere Pro</li>
+        <li>Titles, graphics &amp; motion</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label">Contact</p>
+  <div class="contact-inner">
+    <div class="contact-text">
+      <h2>Let's make<br>something<br><em>worth hearing.</em></h2>
+      <p>Available for remote audio post-production, podcast editing and mixing, and video editing projects. Response within 24 hours.</p>
+    </div>
+    <div class="contact-details">
+      <div class="contact-row">
+        <div class="contact-row-label">Email</div>
+        <div class="contact-row-value"><a href="mailto:danhammond@warpmail.net">danhammond@warpmail.net</a></div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-row-label">Phone</div>
+        <div class="contact-row-value"><a href="tel:+12035363183">(203) 536-3183</a></div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-row-label">Location</div>
+        <div class="contact-row-value">Boulder, CO — Remote Worldwide</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Dan Hammond — Audio Engineer &amp; Video Editor</p>
+  <p>Boulder, CO © 2026</p>
+</footer>
+
+<script>
+  // Generate waveform bars
+  const waveform = document.getElementById('waveform');
+  const barCount = Math.floor(window.innerWidth / 6);
+  for (let i = 0; i < barCount; i++) {
+    const bar = document.createElement('span');
+    const height = Math.random() * 140 + 20;
+    bar.style.height = height + 'px';
+    bar.style.animationDelay = (Math.random() * 3) + 's';
+    bar.style.animationDuration = (2 + Math.random() * 2) + 's';
+    waveform.appendChild(bar);
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
